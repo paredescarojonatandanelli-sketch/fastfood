@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Pedido #{{ '%06d'|format(order.id) }} - {{ config.BUSINESS_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 600px;">
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary btn-sm mb-3">&larr; Volver al Dashboard</a>
+
+    <h3 class="mb-3">Pedido #{{ '%06d'|format(order.id) }}</h3>
+
+    <div class="card p-3 mb-3">
+        <h6 class="text-muted">Estado actual</h6>
+        <span class="badge bg-dark fs-6 mb-3">{{ order.status|upper }}</span>
+
+        <form method="POST" action="{{ url_for('admin.update_order_status', order_id=order.id) }}">
+            <div class="mb-2">
+                <label class="form-label">Cambiar estado</label>
+                <select name="status" class="form-select">
+                    {% for estado in estados %}
+                    <option value="{{ estado }}" {% if estado == order.status %}selected{% endif %}>
+                        {{ estado|upper }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-dark w-100">Actualizar Estado</button>
+        </form>
+    </div>
+
+    <div class="card p-3 mb-3">
+        <h6 class="text-muted mb-2">Detalle del pedido</h6>
+        {% for item in order.items %}
+        <div class="d-flex justify-content-between mb-1">
+            <span>{{ item.quantity }}x {{ item.product_name }}</span>
+            <span>{{ config.CURRENCY }} {{ "%.2f"|format(item.subtotal) }}</span>
+        </div>
+        {% endfor %}
+
+        <hr>
+
+        <div class="d-flex justify-content-between">
+            <span>Subtotal</span>
+            <span>{{ config.CURRENCY }} {{ "%.2f"|format(order.subtotal) }}</span>
+        </div>
+        <div class="d-flex justify-content-between">
+            <span>Delivery</span>
+            <span>{{ config.CURRENCY }} {{ "%.2f"|format(order.delivery_cost) }}</span>
+        </div>
+        <div class="d-flex justify-content-between fw-bold fs-5 mt-2">
+            <span>Total</span>
+            <span>{{ config.CURRENCY }} {{ "%.2f"|format(order.total) }}</span>
+        </div>
+    </div>
+
+    <div class="card p-3">
+        <h6 class="text-muted mb-2">Datos del cliente</h6>
+        <p class="mb-1"><strong>Nombre:</strong> {{ order.customer_name }}</p>
+        <p class="mb-1"><strong>Teléfono:</strong> {{ order.customer_phone }}</p>
+        <p class="mb-1"><strong>Tipo de pedido:</strong> {{ 'Delivery' if order.order_type == 'delivery' else 'Recojo en local' }}</p>
+        {% if order.order_type == 'delivery' %}
+        <p class="mb-1"><strong>Dirección:</strong> {{ order.address }}</p>
+        {% if order.reference %}
+        <p class="mb-1"><strong>Referencia:</strong> {{ order.reference }}</p>
+        {% endif %}
+        {% endif %}
+        <p class="mb-1"><strong>Método de pago:</strong> {{ order.payment_method|capitalize }}</p>
+        {% if order.notes %}
+        <p class="mb-1"><strong>Notas:</strong> {{ order.notes }}</p>
+        {% endif %}
+        <p class="mb-0 text-muted small">{{ order.created_at.strftime('%d/%m/%Y %H:%M') }}</p>
+    </div>
+</div>
+{% endblock %}

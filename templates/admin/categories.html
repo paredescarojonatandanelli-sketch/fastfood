@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Categorías - {{ config.BUSINESS_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>Categorías</h3>
+        <a href="{{ url_for('admin.category_new') }}" class="btn btn-dark btn-sm">+ Nueva Categoría</a>
+    </div>
+
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary btn-sm mb-3">&larr; Volver al Dashboard</a>
+
+    {% for category in categories %}
+    <div class="card mb-2 p-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <strong>{{ category.name }}</strong>
+                {% if not category.active %}<span class="badge bg-secondary">Inactiva</span>{% endif %}
+                <br>
+                <span class="text-muted small">{{ category.description }}</span><br>
+                <span class="text-muted small">{{ category.products|length }} producto(s)</span>
+            </div>
+            <div class="text-end">
+                <a href="{{ url_for('admin.category_edit', category_id=category.id) }}" class="btn btn-sm btn-outline-dark">Editar</a>
+                <form method="POST" action="{{ url_for('admin.category_toggle', category_id=category.id) }}" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-outline-secondary">
+                        {{ 'Desactivar' if category.active else 'Activar' }}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <p class="text-muted">Aún no hay categorías.</p>
+    {% endfor %}
+</div>
+{% endblock %}

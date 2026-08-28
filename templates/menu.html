@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Menú - {{ config.BUSINESS_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4">Nuestro Menú</h2>
+
+    {% for category in categories %}
+        <div class="mt-4 mb-3">
+            <span class="category-stamp">{{ category.name }}</span>
+        </div>
+        <div class="row g-3">
+            {% for product in category.products %}
+                {% if product.active %}
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="card product-card h-100">
+                        <div class="img-wrap">
+                            <img src="{{ url_for('static', filename='images/' + (product.image or 'placeholder.jpg')) }}" alt="{{ product.name }}">
+                            <span class="price-tag">{{ config.CURRENCY }} {{ "%.2f"|format(product.price) }}</span>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="card-title mb-1">{{ product.name }}</h6>
+                            <p class="card-text small text-muted">{{ product.description }}</p>
+                            <button
+                                class="btn btn-danger btn-sm w-100"
+                                onclick="addToCart({{ product.id }}, '{{ product.name|replace("'", "") }}', {{ product.price }})">
+                                Agregar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

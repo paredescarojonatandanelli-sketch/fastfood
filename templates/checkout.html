@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout - {{ config.BUSINESS_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4">Finalizar Pedido</h2>
+
+    <form id="checkout-form">
+        <h5>Tus datos</h5>
+        <div class="mb-3">
+            <label class="form-label">Nombre</label>
+            <input type="text" class="form-control" id="customer_name" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Teléfono</label>
+            <input type="tel" class="form-control" id="customer_phone" required>
+        </div>
+
+        <h5 class="mt-4">Tipo de pedido</h5>
+        <div class="mb-3">
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="order_type" id="tipo_recojo" value="recojo" checked>
+                <label class="form-check-label" for="tipo_recojo">Recojo en local</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="order_type" id="tipo_delivery" value="delivery">
+                <label class="form-check-label" for="tipo_delivery">Delivery</label>
+            </div>
+        </div>
+
+        <div id="delivery-fields" style="display: none;">
+            <div class="mb-3">
+                <label class="form-label">Dirección</label>
+                <input type="text" class="form-control" id="address">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Referencia</label>
+                <input type="text" class="form-control" id="reference">
+            </div>
+        </div>
+
+        <h5 class="mt-4">Método de pago</h5>
+        <div class="mb-3">
+            <select class="form-select" id="payment_method" required>
+                <option value="efectivo">Efectivo</option>
+                <option value="yape">Yape</option>
+                <option value="plin">Plin</option>
+                <option value="tarjeta">Tarjeta</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Notas (opcional)</label>
+            <textarea class="form-control" id="notes" rows="2"></textarea>
+        </div>
+
+        <div id="checkout-error" class="alert alert-danger" style="display: none;"></div>
+
+        <button type="submit" class="btn btn-danger w-100 mt-3">Confirmar Pedido</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Muestra/oculta los campos de dirección según el tipo de pedido elegido
+    document.querySelectorAll('input[name="order_type"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            const deliveryFields = document.getElementById('delivery-fields');
+            deliveryFields.style.display = (radio.value === 'delivery' && radio.checked) ? 'block' : 'none';
+        });
+    });
+
+    document.getElementById('checkout-form').addEventListener('submit', function (e) {
+        e.preventDefault(); // Evita que el formulario recargue la página
+
+        const cart = getCart();
+        const errorBox = document.getElementById('checkout-error');
+
+        if (cart.length === 0) {
+            errorBox.textContent = 'Tu carrito está vacío.';
+            errorBox.style.display = 'block';
+            return;
+        }
+
+        const orderType = document.querySelector('input[name="order_type"]:checked').value;
+
+        const payload = {
+            customer_name: document.getElementById('customer_name').value,
+            customer_phone: document.getElementById('customer_phone').value,
+            order_type: orderType,
+            address: document.getElementById('address').value,
+            reference: document.getElementById('reference').value,
+            payment_method: document.getElementById('payment_method').value,
+            notes: document.getElementById('notes').value,
+            items: cart.map(item => ({ product_id: item.id, quantity: item.quantity }))
+        };
+
+        fetch('/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                clearCart();
+                window.location.href = '/order/' + data.order_id + '/confirmation';
+            } else {
+                errorBox.textContent = data.error || 'Ocurrió un error al procesar tu pedido.';
+                errorBox.style.display = 'block';
+            }
+        })
+        .catch(() => {
+            errorBox.textContent = 'No se pudo conectar con el servidor.';
+            errorBox.style.display = 'block';
+        });
+    });
+</script>
+{% endblock %}

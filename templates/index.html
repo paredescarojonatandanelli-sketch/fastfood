@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}{{ config.BUSINESS_NAME }} - Inicio{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <span class="hero-eyebrow">Pide desde tu mesa</span>
+    <h1 class="hero-title">{{ config.BUSINESS_NAME }}</h1>
+    <p class="hero-subtitle">Los mejores sabores, directo a tu mesa.</p>
+    <p class="hero-meta">📍 {{ config.BUSINESS_ADDRESS }} &nbsp;·&nbsp; 🕒 {{ config.BUSINESS_HOURS }}</p>
+
+    <a href="{{ url_for('customer.menu') }}" class="btn btn-danger btn-lg mt-4">
+        Ver Menú
+    </a>
+</div>
+{% endblock %}

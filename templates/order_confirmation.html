@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Pedido Confirmado - {{ config.BUSINESS_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container py-4 text-center">
+    <h2 class="text-success mb-3">¡Pedido recibido!</h2>
+    <h4 class="mb-4">Pedido #{{ '%06d'|format(order.id) }}</h4>
+
+    <div class="text-start bg-white p-3 rounded shadow-sm mx-auto" style="max-width: 500px;">
+        <h6 class="mb-3">Detalle del pedido</h6>
+
+        {% for item in order.items %}
+        <div class="d-flex justify-content-between mb-1">
+            <span>{{ item.quantity }}x {{ item.product_name }}</span>
+            <span>{{ config.CURRENCY }} {{ "%.2f"|format(item.subtotal) }}</span>
+        </div>
+        {% endfor %}
+
+        <hr>
+
+        <div class="d-flex justify-content-between">
+            <span>Subtotal</span>
+            <span>{{ config.CURRENCY }} {{ "%.2f"|format(order.subtotal) }}</span>
+        </div>
+        <div class="d-flex justify-content-between">
+            <span>Delivery</span>
+            <span>{{ config.CURRENCY }} {{ "%.2f"|format(order.delivery_cost) }}</span>
+        </div>
+        <div class="d-flex justify-content-between fw-bold fs-5 mt-2">
+            <span>Total</span>
+            <span>{{ config.CURRENCY }} {{ "%.2f"|format(order.total) }}</span>
+        </div>
+
+        <hr>
+
+        <p class="mb-1"><strong>Cliente:</strong> {{ order.customer_name }}</p>
+        <p class="mb-1"><strong>Tipo de pedido:</strong> {{ 'Delivery' if order.order_type == 'delivery' else 'Recojo en local' }}</p>
+        {% if order.order_type == 'delivery' %}
+        <p class="mb-1"><strong>Dirección:</strong> {{ order.address }}</p>
+        {% endif %}
+        <p class="mb-0"><strong>Método de pago:</strong> {{ order.payment_method|capitalize }}</p>
+    </div>
+
+    <a href="{{ whatsapp_link }}" target="_blank" class="btn btn-success btn-lg mt-4">
+        Enviar pedido por WhatsApp
+    </a>
+    <br>
+    <a href="{{ url_for('customer.menu') }}" class="btn btn-outline-secondary mt-2">
+        Volver al menú
+    </a>
+</div>
+{% endblock %}

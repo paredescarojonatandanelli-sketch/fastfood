@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - {{ config.BUSINESS_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Dashboard</h2>
+        <a href="{{ url_for('admin.logout') }}" class="btn btn-outline-secondary btn-sm">Cerrar sesión</a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card text-center p-3">
+                <h6 class="text-muted">Nuevos</h6>
+                <h3>{{ resumen.nuevo }}</h3>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card text-center p-3">
+                <h6 class="text-muted">En preparación</h6>
+                <h3>{{ resumen.en_preparacion }}</h3>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card text-center p-3">
+                <h6 class="text-muted">Listos</h6>
+                <h3>{{ resumen.listo }}</h3>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card text-center p-3">
+                <h6 class="text-muted">Entregados</h6>
+                <h3>{{ resumen.entregado }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="card p-3 mb-4">
+        <h6 class="text-muted mb-1">Ventas del día</h6>
+        <h3>{{ config.CURRENCY }} {{ "%.2f"|format(ventas_hoy) }}</h3>
+    </div>
+
+    <h5 class="mb-3">Pedidos recientes</h5>
+
+    {% for order in pedidos_recientes %}
+    <div class="card mb-2 p-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <strong>PEDIDO #{{ '%06d'|format(order.id) }}</strong><br>
+                <span class="text-muted">{{ order.customer_name }}</span><br>
+                <span class="text-muted small">{{ order.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
+            </div>
+            <div class="text-end">
+                <div class="fw-bold">{{ config.CURRENCY }} {{ "%.2f"|format(order.total) }}</div>
+                <span class="badge bg-secondary">{{ order.status|upper }}</span><br>
+                <a href="{{ url_for('admin.order_detail', order_id=order.id) }}" class="btn btn-sm btn-outline-dark mt-1">Ver Pedido</a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <p class="text-muted">Aún no hay pedidos.</p>
+    {% endfor %}
+</div>
+{% endblock %}
