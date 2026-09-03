@@ -13,8 +13,8 @@ def create_app():
     db.init_app(app)
 
     with app.app_context():
-    db.create_all()
-    run_seed()
+        db.create_all()
+        run_seed()
 
     app.register_blueprint(customer_bp)
     app.register_blueprint(admin_bp)
